@@ -41,16 +41,16 @@ class MarkdownTransformerShould {
         val result = MarkdownTransformer().transform(markdown)
 
         assertEquals("Hello World, this is a test", result.text)
-        assertEquals(mapOf(), result.links)
+        assertEquals(mapOf(), result.anchorsWithLinks)
     }
 
     @Test
-    fun `transform text with one link`() {
-        val markdown = "Hello [World](https://www.helloworld.es), this is a test"
+    fun `transform text with links to anchors`() {
+        val markdown = "Hello [World](https://www.helloworld.es), this is a [test](https://www.test.es)"
 
         val result = MarkdownTransformer().transform(markdown)
 
-        assertEquals("Hello World [1], this is a test", result.text)
-        assertEquals(mapOf(1 to "https://www.helloworld.es"), result.links)
+        assertEquals("Hello World [1], this is a test [2]", result.text)
+        assertEquals(mapOf(1 to "https://www.helloworld.es", 2 to "https://www.test.es"), result.anchorsWithLinks)
     }
 }
