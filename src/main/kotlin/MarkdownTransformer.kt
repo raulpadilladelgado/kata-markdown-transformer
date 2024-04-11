@@ -1,4 +1,8 @@
 class MarkdownTransformer {
+    companion object {
+        private val LINK_REGEX = "\\[(.*?)]\\((.*?)\\)".toRegex()
+    }
+
     fun transform(markdown: String): MarkdownWithAnchors {
         val links = findLinksAt(markdown)
         val transformedText = replaceLinksByAnchors(markdown, links)
@@ -6,20 +10,16 @@ class MarkdownTransformer {
     }
 
     private fun replaceLinksByAnchors(markdownText: String, links: List<MarkdownLink>): String {
-        var transformedText = markdownText
-        links.forEachIndexed { index, link ->
-            transformedText = transformedText.replace("[${link.name}](${link.url})", "${link.name} [${index + 1}]")
+        return links.fold(markdownText) { acc, link ->
+            acc.replace("[${link.name}](${link.url})", "${link.name} [${links.indexOf(link) + 1}]")
         }
-        return transformedText
     }
 
     private fun findLinksAt(markdownText: String): List<MarkdownLink> {
-        val linkRegex = "\\[(.*?)]\\((.*?)\\)".toRegex()
-        return linkRegex.findAll(markdownText).mapIndexed { _, matchResult ->
-            val linkName = matchResult.groupValues[1]
-            val linkUrl = matchResult.groupValues[2]
-            MarkdownLink(linkName, linkUrl)
-        }.distinct().toList()
+        return LINK_REGEX.findAll(markdownText)
+            .map { matchResult -> MarkdownLink(matchResult.groupValues[1], matchResult.groupValues[2]) }
+            .distinct()
+            .toList()
     }
 
     private fun associateAnchorsToLinks(links: List<MarkdownLink>) =
