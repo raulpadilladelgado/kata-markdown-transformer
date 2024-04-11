@@ -1,19 +1,16 @@
 class MarkdownTransformer {
     fun transform(markdown: String): MarkdownWithAnchors {
-        return replaceLinksByAnchors(markdown, findLinksAt(markdown))
+        val links = findLinksAt(markdown)
+        val transformedText = replaceLinksByAnchors(markdown, links)
+        return MarkdownWithAnchors(transformedText, associateAnchorsToLinks(links))
     }
 
-    private fun replaceLinksByAnchors(
-        markdownText: String,
-        links: List<MarkdownLink>,
-        linkIndex: Int = 0
-    ): MarkdownWithAnchors {
-        if (linkIndex == links.size) {
-            return MarkdownWithAnchors(markdownText, associateAnchorsToLinks(links))
+    private fun replaceLinksByAnchors(markdownText: String, links: List<MarkdownLink>): String {
+        var transformedText = markdownText
+        links.forEachIndexed { index, link ->
+            transformedText = transformedText.replace("[${link.name}](${link.url})", "${link.name} [${index + 1}]")
         }
-        val (linkName, linkUrl) = links[linkIndex]
-        val transformedText = markdownText.replace("[${linkName}](${linkUrl})", "$linkName [${linkIndex + 1}]")
-        return replaceLinksByAnchors(transformedText, links, linkIndex + 1)
+        return transformedText
     }
 
     private fun findLinksAt(markdownText: String): List<MarkdownLink> {
@@ -22,7 +19,7 @@ class MarkdownTransformer {
             val linkName = matchResult.groupValues[1]
             val linkUrl = matchResult.groupValues[2]
             MarkdownLink(linkName, linkUrl)
-        }.toList()
+        }.distinct().toList()
     }
 
     private fun associateAnchorsToLinks(links: List<MarkdownLink>) =
@@ -33,5 +30,4 @@ class MarkdownTransformer {
 }
 
 data class MarkdownWithAnchors(val text: String, val anchors: Map<Int, String>)
-
 data class MarkdownLink(val name: String, val url: String)
