@@ -3,10 +3,19 @@ class MarkdownTransformer {
         private val LINK_REGEX = "\\[(.*?)]\\((.*?)\\)".toRegex()
     }
 
-    fun transform(markdown: String): MarkdownWithAnchors {
+    fun transform(markdown: String): String {
         val links = findLinksAt(markdown)
         val transformedText = replaceLinksByAnchors(markdown, links)
-        return MarkdownWithAnchors(transformedText, associateAnchorsToLinks(links))
+        val anchors = associateAnchorsToLinks(links)
+        return appendAnchorsToText(transformedText, anchors)
+    }
+
+    private fun appendAnchorsToText(text: String, anchors: Map<Int, String>): String {
+        if (anchors.isEmpty()) {
+            return text
+        }
+        val anchorsText = anchors.entries.joinToString(separator = "\n") { "[${it.key}]: ${it.value}" }
+        return "$text\n$anchorsText"
     }
 
     private fun replaceLinksByAnchors(markdownText: String, links: List<MarkdownLink>): String {
@@ -29,5 +38,4 @@ class MarkdownTransformer {
         }
 }
 
-data class MarkdownWithAnchors(val text: String, val anchors: Map<Int, String>)
 data class MarkdownLink(val name: String, val url: String)

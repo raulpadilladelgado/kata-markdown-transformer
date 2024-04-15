@@ -9,8 +9,7 @@ class MarkdownTransformerShould {
 
         val result = MarkdownTransformer().transform(markdown)
 
-        assertEquals("Hello World, this is a test", result.text)
-        assertEquals(mapOf(), result.anchors)
+        assertEquals("Hello World, this is a test", result)
     }
 
     @Test
@@ -19,8 +18,14 @@ class MarkdownTransformerShould {
 
         val result = MarkdownTransformer().transform(markdown)
 
-        assertEquals("Hello World [1], this is a test [2]", result.text)
-        assertEquals(mapOf(1 to "https://www.helloworld.es", 2 to "https://www.test.es"), result.anchors)
+        assertEquals(
+            """
+            Hello World [1], this is a test [2]
+            [1]: https://www.helloworld.es
+            [2]: https://www.test.es
+            """.trimIndent(),
+            result
+        )
     }
 
     @Test
@@ -30,8 +35,13 @@ class MarkdownTransformerShould {
 
         val result = MarkdownTransformer().transform(markdown)
 
-        assertEquals("Hello World [1], this is a test, bye World [1], this is a test [2]", result.text)
-        assertEquals(mapOf(1 to "https://www.helloworld.es", 2 to "https://www.test.es"), result.anchors)
+        assertEquals("""
+            Hello World [1], this is a test, bye World [1], this is a test [2]
+            [1]: https://www.helloworld.es
+            [2]: https://www.test.es
+            """.trimIndent(),
+            result
+        )
     }
 
     @Test
@@ -40,8 +50,7 @@ class MarkdownTransformerShould {
 
         val result = MarkdownTransformer().transform(markdown)
 
-        assertEquals("Hello [World], this is a test", result.text)
-        assertEquals(mapOf(), result.anchors)
+        assertEquals("Hello [World], this is a test", result)
     }
 
     @Test
@@ -50,7 +59,6 @@ class MarkdownTransformerShould {
 
         val result = MarkdownTransformer().transform(markdown)
 
-        assertEquals("Hello World(https://www.helloworld.es, this is a test", result.text)
-        assertEquals(mapOf(), result.anchors)
+        assertEquals("Hello World(https://www.helloworld.es, this is a test", result)
     }
 }
